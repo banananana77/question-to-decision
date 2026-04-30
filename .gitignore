@@ -2,8 +2,12 @@ node_modules
 .next
 out
 dist
-.env.local
 .env
+.env.local
+.env.development
+.env.production
+.env.*.local
 coverage
 .vercel
 *.log
+test-results/

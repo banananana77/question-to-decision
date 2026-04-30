@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash([ -d \"c:/Users/msato/Desktop/Question-to-Decision/node_modules\" ])",
+      "Bash(npm run:*)",
+      "Bash(npx prisma:*)",
+      "Bash(xxd messages/ja.json)",
+      "Bash(node -e ':*)",
+      "Bash(xxd messages/en.json)",
+      "Bash(rm src/i18n.ts)",
+      "Bash(rm -rf src/app/test)",
+      "Bash(xargs ls:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx next:*)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('c:/Users/msato/Desktop/Question-to-Decision/src/messages/ja.json','utf8'\\)\\); console.log\\('ja.json: valid'\\)\")"
+    ]
+  }
+}

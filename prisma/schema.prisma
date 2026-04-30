@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usage {
+  id            String   @id @default(cuid())
+  fingerprint   String   @unique
+  requestCount  Int      @default(0)
+  lastRequestAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([fingerprint])
+  @@index([lastRequestAt])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  fingerprint String
+  action      String   // 'diagnose', 'blocked', 'usage_check'
+  inputHash   String?  // 入力のハッシュ（個人情報保護）
+  resultType  String?  // 'success', 'error', 'blocked'
+  metadata    Json?    // その他の記録
+  createdAt   DateTime @default(now())
+
+  @@index([fingerprint])
+  @@index([action])
+  @@index([createdAt])
+}
