@@ -58,6 +58,9 @@ export function MandatoryConditionsForm({ onSubmit }: MandatoryConditionsFormPro
             </label>
             <input
               type="text"
+              id={`mandatory-${field.id}`}
+              name={`mandatory-${field.id}`}
+              autoComplete="off"
               value={values[field.id]}
               onChange={(e) => setValues((prev) => ({ ...prev, [field.id]: e.target.value }))}
               placeholder={t(field.placeholderKey as Parameters<typeof t>[0])}

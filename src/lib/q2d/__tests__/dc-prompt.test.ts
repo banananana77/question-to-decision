@@ -18,8 +18,8 @@ import type { FrontContext } from '../dc-prompt';
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
 const layer3: Layer3Output = {
-  problems: [{ id: 'p1', description: 'ROI未達が続いている', dependencies: [] }],
-  tasks: [{ id: 't1', description: '投資継続の可否を判断する', dependencies: [] }],
+  problems: [{ id: 'p1', description: 'ROI未達が続いている', issueId: 'i1' }],
+  tasks: [{ id: 't1', description: '投資継続の可否を判断する', problemId: 'p1', issueId: 'i1' }],
   conversions: [{ problemId: 'p1', taskId: 't1', reasoning: '問題を課題に転換' }],
 };
 

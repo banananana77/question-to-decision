@@ -30,8 +30,8 @@ function test(name: string, fn: () => void): void {
 // ── Fixtures ──────────────────────────────────────────────────────────────────
 
 const layer3: Layer3Output = {
-  problems: [{ id: 'p1', description: '停止判断ができていない', dependencies: [] }],
-  tasks: [{ id: 't1', description: '責任者を固定する', dependencies: [] }],
+  problems: [{ id: 'p1', description: '停止判断ができていない', issueId: 'i1' }],
+  tasks: [{ id: 't1', description: '責任者を固定する', problemId: 'p1', issueId: 'i1' }],
   conversions: [{ problemId: 'p1', taskId: 't1', reasoning: '転換' }],
 };
 

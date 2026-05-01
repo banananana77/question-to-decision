@@ -152,6 +152,35 @@ test('mandatoryConditions の一部が undefined でも空文字になる', () =
   assert.equal(result.mandatoryConditions.budgetSource, '');
 });
 
+// ── 混線バグ非再現確認（pre_adoption: timeHorizon / budgetSource）────────────────
+
+console.log('\n[6] mandatoryConditions 混線バグ非再現確認');
+
+test('pre_adoption: timeHorizon と budgetSource が独立して保持される', () => {
+  const result = buildFrontContext({
+    selectedType: 'pre_adoption',
+    reclassificationResult: null,
+    mandatoryConditions: {
+      owner: 'CEO',
+      timeHorizon: '次回経営会議まで',
+      budgetSource: 'AI導入検討予算',
+    },
+  });
+  assert.ok(result !== undefined);
+  assert.equal(result.mandatoryConditions.owner, 'CEO');
+  assert.equal(result.mandatoryConditions.timeHorizon, '次回経営会議まで');
+  assert.equal(result.mandatoryConditions.budgetSource, 'AI導入検討予算');
+  // 混線チェック: timeHorizon に budgetSource の文字列が混入していない
+  assert.ok(
+    !result.mandatoryConditions.timeHorizon.includes('AI導入検討予算'),
+    `timeHorizon に budgetSource が混入: "${result.mandatoryConditions.timeHorizon}"`
+  );
+  assert.ok(
+    !result.mandatoryConditions.budgetSource.includes('次回経営会議まで'),
+    `budgetSource に timeHorizon が混入: "${result.mandatoryConditions.budgetSource}"`
+  );
+});
+
 // ── Summary ───────────────────────────────────────────────────────────────────
 
 console.log(`\n${passed + failed} tests: ${passed} passed, ${failed} failed\n`);
