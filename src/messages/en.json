@@ -81,7 +81,7 @@
     "mandatoryOwnerLabel": "Who is the final decision-maker?",
     "mandatoryOwnerPlaceholder": "e.g., CEO, CFO, Board of Directors",
     "mandatoryTimeHorizonLabel": "When does this decision need to be made?",
-    "mandatoryTimeHorizonPlaceholder": "e.g., End of this month, Next board meeting, End of Q2",
+    "mandatoryTimeHorizonPlaceholder": "Please select",
     "mandatoryTimeHorizonOption_nextMeeting": "By next management meeting",
     "mandatoryTimeHorizonOption_endOfMonth": "By end of this month",
     "mandatoryTimeHorizonOption_endOfQuarter": "By end of quarter",

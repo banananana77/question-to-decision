@@ -81,7 +81,7 @@
     "mandatoryOwnerLabel": "誰が最終的な判断者ですか？",
     "mandatoryOwnerPlaceholder": "例: CEO、CFO、取締役会",
     "mandatoryTimeHorizonLabel": "いつまでに決める必要がありますか？",
-    "mandatoryTimeHorizonPlaceholder": "例: 今月末、次回ボード、Q2終了時",
+    "mandatoryTimeHorizonPlaceholder": "選択してください",
     "mandatoryTimeHorizonOption_nextMeeting": "次回経営会議まで",
     "mandatoryTimeHorizonOption_endOfMonth": "今月末まで",
     "mandatoryTimeHorizonOption_endOfQuarter": "四半期末まで",
