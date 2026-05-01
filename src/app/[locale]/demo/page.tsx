@@ -10,23 +10,6 @@ import { MandatoryConditionsForm, type MandatoryConditions } from '@/components/
 import { resolveTypeQuestions } from '@/lib/q2d/typeSpecificQuestions';
 import type { ReclassificationResult } from '@/lib/q2d/reclassification';
 
-const FIXED_Q2_OPTIONS: Q2Option[] = [
-  { id: 'opt_1', text: '継続・停止の判断基準を明確にしたい' },
-  { id: 'opt_2', text: 'ROI・成果基準を明確にしたい' },
-  { id: 'opt_3', text: '最終判断者と責任範囲を明確にしたい' },
-  { id: 'opt_4', text: '追加投資・拡大判断の基準を明確にしたい' },
-];
-
-// pre_adoption 専用選択肢 — ID は routing 判定に使う内部キー
-// intermediate 初期表示: pre_basis / pre_scope / __other__
-// final 初期表示:        pre_pilot / pre_full / pre_defer_stop
-const PRE_ADOPTION_Q2_OPTIONS: Q2Option[] = [
-  { id: 'pre_basis',      text: '導入判断の基準を固めたい' },
-  { id: 'pre_scope',      text: '導入範囲を決めたい' },
-  { id: 'pre_pilot',      text: '限定導入から始めたい' },
-  { id: 'pre_full',       text: '本格導入の可否を判断したい' },
-  { id: 'pre_defer_stop', text: '延期・見送りを検討したい' },
-];
 import type {
   Q2Option,
   Q2DPipelineResult,
@@ -76,6 +59,23 @@ const INITIAL_STATE: DemoState = {
 
 export default function DemoPage() {
   const t = useTranslations('q2d');
+
+  const FIXED_Q2_OPTIONS: Q2Option[] = [
+    { id: 'opt_1', text: t('q2Option_opt1') },
+    { id: 'opt_2', text: t('q2Option_opt2') },
+    { id: 'opt_3', text: t('q2Option_opt3') },
+    { id: 'opt_4', text: t('q2Option_opt4') },
+  ];
+
+  // pre_adoption 専用選択肢 — ID は routing 判定に使う内部キー
+  const PRE_ADOPTION_Q2_OPTIONS: Q2Option[] = [
+    { id: 'pre_basis',      text: t('q2Option_preBasis') },
+    { id: 'pre_scope',      text: t('q2Option_preScope') },
+    { id: 'pre_pilot',      text: t('q2Option_prePilot') },
+    { id: 'pre_full',       text: t('q2Option_preFull') },
+    { id: 'pre_defer_stop', text: t('q2Option_preDeferStop') },
+  ];
+
   const [state, setState] = useState<DemoState>(INITIAL_STATE);
 
   const updateState = (patch: Partial<DemoState>) =>
