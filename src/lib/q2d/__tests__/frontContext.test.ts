@@ -181,6 +181,60 @@ test('pre_adoption: timeHorizon と budgetSource が独立して保持される'
   );
 });
 
+// ── select UI downstream 流通テスト ──────────────────────────────────────────
+
+console.log('\n[7] select UI downstream 流通テスト');
+
+test('カスタム入力値 "Q3第一週まで" がそのまま downstream に流れる', () => {
+  const result = buildFrontContext({
+    selectedType: 'continuation',
+    reclassificationResult: null,
+    mandatoryConditions: { owner: 'CFO', timeHorizon: 'Q3第一週まで', budgetSource: 'IT予算' },
+  });
+  assert.ok(result !== undefined);
+  assert.equal(result.mandatoryConditions.timeHorizon, 'Q3第一週まで');
+});
+
+test('英語プリセット値 "By end of quarter" がそのまま downstream に流れる', () => {
+  const result = buildFrontContext({
+    selectedType: 'expansion',
+    reclassificationResult: null,
+    mandatoryConditions: { owner: 'CEO', timeHorizon: 'By end of quarter', budgetSource: 'R&D budget' },
+  });
+  assert.ok(result !== undefined);
+  assert.equal(result.mandatoryConditions.timeHorizon, 'By end of quarter');
+});
+
+test('内部sentinel "__custom__" が timeHorizon に残っていない（コンポーネント防護の確認）', () => {
+  // MandatoryConditionsForm は values.timeHorizon に CUSTOM_SENTINEL を格納しない設計。
+  // 自然言語文字列のみ downstream に届く前提を確認する。
+  const presetsAndCustom = [
+    '次回経営会議まで',
+    '今月末まで',
+    '四半期末まで',
+    '半期末まで',
+    '年度内',
+    'Q3第一週まで', // custom
+    'By next management meeting',
+    'By end of quarter',
+    'Next board meeting, Q3', // custom
+  ];
+  for (const timeHorizon of presetsAndCustom) {
+    const result = buildFrontContext({
+      selectedType: 'continuation',
+      reclassificationResult: null,
+      mandatoryConditions: { owner: 'CFO', timeHorizon, budgetSource: 'IT予算' },
+    });
+    assert.ok(result !== undefined);
+    assert.notEqual(
+      result.mandatoryConditions.timeHorizon,
+      '__custom__',
+      `sentinel が漏洩: "${result.mandatoryConditions.timeHorizon}"`
+    );
+    assert.equal(result.mandatoryConditions.timeHorizon, timeHorizon);
+  }
+});
+
 // ── Summary ───────────────────────────────────────────────────────────────────
 
 console.log(`\n${passed + failed} tests: ${passed} passed, ${failed} failed\n`);
