@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Step1 } from '@/components/q2d/Step1';
 import { Step2 } from '@/components/q2d/Step2';
 import { CompleteScreen } from '@/components/q2d/CompleteScreen';
@@ -59,6 +59,7 @@ const INITIAL_STATE: DemoState = {
 
 export default function DemoPage() {
   const t = useTranslations('q2d');
+  const locale = useLocale();
 
   const FIXED_Q2_OPTIONS: Q2Option[] = [
     { id: 'opt_1', text: t('q2Option_opt1') },
@@ -106,7 +107,7 @@ export default function DemoPage() {
       const res = await fetch('/api/q2d-pipeline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ q1: state.q1, q2 }),
+        body: JSON.stringify({ q1: state.q1, q2, locale }),
       });
 
       if (!res.ok) throw new Error('Pipeline failed');

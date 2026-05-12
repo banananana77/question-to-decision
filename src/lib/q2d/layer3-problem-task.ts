@@ -1,5 +1,5 @@
 import { callClaude } from '@/lib/llm/client';
-import { createLayer3Prompt, createNotAskablePrompt } from '@/lib/llm/prompts';
+import { createLayer3Prompt, createLayer3PromptEn, createNotAskablePrompt } from '@/lib/llm/prompts';
 import { parseLayer3Output, parseNotAskableOutput } from '@/lib/llm/parser';
 import { logger, safeErrorMeta } from '@/lib/logging/logger';
 import type { Layer2Output, Layer3Output, ExtractedConditions } from '@/schemas/output.schema';
@@ -13,11 +13,13 @@ export interface NotAskableResult {
 /**
  * Layer 3: 問題/課題切り分け
  */
-export async function convertProblemTask(layer2Result: Layer2Output): Promise<Layer3Output> {
+export async function convertProblemTask(layer2Result: Layer2Output, locale?: string): Promise<Layer3Output> {
   try {
     logger.info('Layer3: Starting problem-task conversion');
 
-    const prompt = createLayer3Prompt(layer2Result.issues);
+    const prompt = (locale ?? 'ja') === 'en'
+      ? createLayer3PromptEn(layer2Result.issues)
+      : createLayer3Prompt(layer2Result.issues);
     const response = await callClaude({
       prompt,
       maxTokens: 2000,

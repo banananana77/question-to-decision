@@ -13,6 +13,7 @@ const MAX_BODY_BYTES = 64 * 1024; // 64KB
 const bodySchema = z.object({
   q1: z.string().min(1).max(2000),
   q2: z.string().min(1).max(500),
+  locale: z.string().optional(),
 });
 
 function deriveAdditionalQuestions(
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { q1, q2 } = parsed.data;
+    const { q1, q2, locale } = parsed.data;
 
     // 6. Usage Increment（validation 通過後のみカウント）
     await usageRepository.incrementRequest(fingerprint);
@@ -87,7 +88,7 @@ export async function POST(request: NextRequest) {
     logger.info('q2d-pipeline API: Starting', { q1Length: q1.length });
 
     // 7. Pipeline実行
-    const pipelineResult = await runQ2DPipeline(q1);
+    const pipelineResult = await runQ2DPipeline(q1, locale);
 
     const additionalQuestionsNeeded = deriveAdditionalQuestions(
       pipelineResult.extractedConditions

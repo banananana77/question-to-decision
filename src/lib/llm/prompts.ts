@@ -175,6 +175,52 @@ ${issuesText}
 }
 
 /**
+ * Layer 3: problem/task classification (English output)
+ */
+export function createLayer3PromptEn(issues: Array<{ id: string; text: string }>): string {
+  const issuesText = issues.map((issue) => `- ${issue.id}: ${issue.text}`).join('\n');
+
+  return `You are an expert in restructuring business decision points into "problems" and "tasks."
+
+Analyze the following issue list and convert each into a problem and a task. Write all descriptions in English.
+
+# Classification criteria
+- **Problem**: A phenomenon that is already occurring, observable, and cannot be changed
+- **Task**: Something to be decided in the future; a decision target that is changeable
+
+# Issue list
+${issuesText}
+
+# Output format
+Respond strictly in the following JSON format. Do not use Markdown syntax — output JSON only.
+
+{
+  "problems": [
+    {
+      "id": "problem_1",
+      "description": "Phenomenon description in English",
+      "issueId": "issue_1"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task_1",
+      "description": "Decision target description in English",
+      "problemId": "problem_1",
+      "issueId": "issue_1"
+    }
+  ],
+  "conversions": [
+    {
+      "problemId": "problem_1",
+      "taskId": "task_1",
+      "reasoning": "Reason for converting problem to task"
+    }
+  ]
+}`;
+}
+
+/**
  * 「問えない理由」の抽出 + 判断条件の検出値抽出
  */
 export function createNotAskablePrompt(

@@ -8,7 +8,7 @@ import type { Q2DResult, Layer2Output } from '@/schemas/output.schema';
 /**
  * Q2Dパイプライン実行（Layer 1〜3統合）
  */
-export async function runQ2DPipeline(inputText: string): Promise<Q2DResult> {
+export async function runQ2DPipeline(inputText: string, locale?: string): Promise<Q2DResult> {
   try {
     logger.info('Q2D Pipeline: Starting', {
       inputLength: inputText.length,
@@ -51,7 +51,7 @@ export async function runQ2DPipeline(inputText: string): Promise<Q2DResult> {
     }
 
     // Layer 3: 問題/課題切り分け
-    const layer3Result = await convertProblemTask(finalLayer2Result);
+    const layer3Result = await convertProblemTask(finalLayer2Result, locale);
 
     // 「問えない理由」と判断条件の検出値を抽出
     const { reasons: notAskableReasons, extractedConditions } =
