@@ -27,6 +27,8 @@ export function createDCPrompt(params: {
   additionalAnswers: AdditionalAnswers;
   hasDependencies: boolean;
   promptMode?: 'intermediate' | 'final';
+  locale?: string;
+  selectedQ2Id?: string;
 }): string {
   return generateDCPrompt(buildDCPromptParams(params));
 }

@@ -142,6 +142,8 @@ export function CompleteScreen({
       additionalAnswers,
       hasDependencies,
       promptMode: preViewMode,
+      locale,
+      selectedQ2Id,
     });
 
     // copy_clicked: プロンプト全文ではなく長さのみ送信

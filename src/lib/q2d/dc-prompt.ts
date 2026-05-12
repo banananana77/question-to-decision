@@ -48,6 +48,8 @@ export interface DCPromptParams {
   hasDependencies: boolean;
   frontContext?: FrontContext;
   promptMode?: 'intermediate' | 'final';
+  locale?: string;
+  selectedQ2Id?: string;
 }
 
 // ── Core functions (pure, exported for testing) ───────────────────────────────
@@ -207,6 +209,9 @@ export function assertConditionInvariants(
  * LLM不要・純粋なテンプレート処理
  */
 export function generateDCPrompt(params: DCPromptParams): string {
+  if ((params.locale ?? 'ja') === 'en') {
+    return generateDCPromptEn(params);
+  }
   const {
     q1,
     q2,
@@ -522,4 +527,311 @@ ${JSON.stringify(rawPayload, null, 2)}
 3. 再判断条件
 
 JSON形式・コードブロック形式では出力しないでください。`;
+}
+
+// ── English template ──────────────────────────────────────────────────────────
+
+function generateDCPromptEn(params: DCPromptParams): string {
+  const {
+    q1,
+    q2,
+    layer3,
+    extractedConditions,
+    additionalQuestionsNeeded,
+    additionalAnswers,
+    hasDependencies,
+    frontContext,
+    promptMode,
+    selectedQ2Id,
+  } = params;
+
+  const isPreAdoptionFinal = frontContext?.effectiveType === 'pre_adoption' && promptMode === 'final';
+
+  const conditions = normalizeConditions(extractedConditions, additionalQuestionsNeeded, additionalAnswers);
+
+  const displayOwner = conditions.owner ?? 'Undetermined';
+  const displayTimeHorizon = conditions.timeHorizon ?? 'Undetermined';
+  const displayDecisionRule = conditions.decisionRule ?? 'Undetermined';
+
+  // English unresolved points (raw — used in rawPayload)
+  const rawUnresolved: string[] = [];
+  if (conditions.owner === null) rawUnresolved.push('Final decision-maker');
+  if (conditions.timeHorizon === null) rawUnresolved.push('Decision deadline');
+  if (conditions.decisionRule === null) rawUnresolved.push('Decision criteria');
+
+  // Supplement from mandatoryConditions
+  const mc = frontContext?.mandatoryConditions;
+  const unresolvedPoints = mc ? (() => {
+    const out = [...rawUnresolved];
+    if (isUnsetCondition(mc.owner) && !out.some(p => p.toLowerCase().includes('decision-maker') || p.toLowerCase().includes('owner')))
+      out.push('Final decision-maker undetermined');
+    if (isUnsetCondition(mc.timeHorizon) && !out.some(p => p.toLowerCase().includes('deadline')))
+      out.push('Decision deadline undetermined');
+    if (isUnsetCondition(mc.budgetSource) && !out.some(p => p.toLowerCase().includes('budget')))
+      out.push('Budget / investment scope undetermined');
+    return out;
+  })() : rawUnresolved;
+
+  const unresolvedText = unresolvedPoints.length > 0
+    ? unresolvedPoints.map(p => `- ${p}`).join('\n')
+    : 'None';
+
+  const rawPayload: DCRawPayload = { conditions, unresolvedPoints: rawUnresolved };
+
+  const problemsText = layer3.problems.slice(0, 4).map((p, i) => `${i + 1}. ${p.description}`).join('\n');
+  const tasksText = layer3.tasks.map((t, i) => `${i + 1}. ${t.description}`).join('\n');
+  const issueCount = layer3.problems.length;
+
+  const frontContextBlock = frontContext
+    ? `【Front Context: Structure fixed on the front end】\n\`\`\`json\n${JSON.stringify(frontContext, null, 2)}\n\`\`\`\n\n`
+    : '';
+
+  const typeHintMapEn: Record<InvestmentTypeIdForDC, string> = {
+    continuation: 'Read primarily as a continue / scale-down / stop decision',
+    roi_interpretation: 'Read primarily as an ROI shortfall interpretation and benchmark problem',
+    expansion: 'Read primarily as a scale-up / additional investment / full-scale deployment decision (boundary equivalent)',
+    responsibility_structure: 'Read primarily as a decision-maker / stop authority / ownership problem',
+    pre_adoption: isPreAdoptionFinal
+      ? 'Read as Pre-Adoption (adoption decision comparison). Primary focus: comparing full adoption / limited adoption / deferral / halt'
+      : 'Read as an adoption decision (Pre-phase). Primary axis: whether to begin, not a continuation/stop judgment',
+    other: 'Read primarily as a problem of narrowing the stalled decision to one',
+  } as const;
+
+  // Expansion: hint specific to the selected Q2 option
+  const expansionQ2Hint = (() => {
+    if (frontContext?.effectiveType !== 'expansion') return '';
+    const hintMap: Partial<Record<string, string>> = {
+      opt_1: '- Expansion focus: user wants to clarify continue-or-stop criteria within the expansion decision. Emphasize what conditions define whether to expand, maintain, or stop.\n',
+      opt_2: '- Expansion focus: user wants to clarify ROI and success criteria for expansion. Emphasize what measurable outcomes justify additional investment.\n',
+      opt_3: '- Expansion focus: user wants to clarify the final decision-maker and accountability scope for expansion. Emphasize who holds authority and budget.\n',
+      opt_4: '- Expansion focus: user wants to clarify the criteria for the additional investment or expansion decision itself. Emphasize conditions that define whether to proceed with scaling.\n',
+    };
+    return selectedQ2Id ? (hintMap[selectedQ2Id] ?? '') : '';
+  })();
+
+  const frontGuidanceBlock = frontContext ? `【Interpretation Guidance: How to use the structure fixed on the front end】
+- effectiveType (${frontContext.effectiveType}) is the primary decision type for this session; refer to it with priority
+- Reading hint: ${typeHintMapEn[frontContext.effectiveType]}
+${expansionQ2Hint}- owner / timeHorizon / budgetSource are the premises for this decision (treat as undetermined if empty)
+- If frontContext conflicts with the main text, do not treat frontContext as absolute — also observe the main text description
+- In the output, maintain consistency with the main text rather than being overly swayed by frontContext
+
+【Decision Rule: How to handle decision criteria】
+- Do not end judgment axes with adjectives like "high improvement potential" or "promising"
+- For each option in the decision surface, include: "what facts or conditions must be observed to adopt this option"
+- Even without numeric KPIs, express as a Yes/No observable condition or a deadline-bound confirmation (e.g., "if X is confirmed by the next board meeting")
+- Even when the decision criterion is undetermined (null), output what needs to be confirmed to judge this issue
+
+${frontContext.effectiveType !== 'pre_adoption' ? `【Continue / Stop Definition: Adoption conditions for continuation and stop】
+- When presenting "continuation," do not end with adjectives like "because there is improvement potential"
+- "Continuation" means: what facts or conditions must be confirmed by the deadline for this option to be adopted
+- For continuation adoption conditions, include where possible:
+  - Whether additional investment scope is specified (what, how much, by when)
+  - Whether improvement rationale (vendor plan / executable initiatives / required structure) is confirmed
+  - Whether this additional investment is sufficiently justified compared to alternatives
+- When presenting "stop," do not end with backward causation like "because results are not showing"
+- "Stop" means: which conditions failing to be confirmed lead to this option, or which negative facts being confirmed lead to it
+- For stop adoption conditions, include where possible:
+  - Improvement rationale cannot be confirmed (plan/structure cannot be assembled within deadline)
+  - Justification for additional investment cannot be confirmed (inferior cost-effectiveness vs. alternatives)
+  - Rationale for reallocation to other initiatives is clearly higher
+  - Continuing will not achieve the primary objective (confirmed)
+- When continuation / scale-down / stop are presented together, write all three at the same level of granularity
+
+【Scale-Down Definition: Definition of "scale-down"】
+- When presenting "scale-down," do not write it as hold / wait-and-see / status quo / compromise
+- "Scale-down" must always include "what to stop and what to keep" as an independent operational state
+- Include the following perspectives where possible:
+  - Whether additional investment is stopped (new development / additional costs)
+  - Whether current operations are maintained (currently running features/scope)
+  - Whether only some features/scope remain (limiting to target departments / use cases)
+  - Whether existing assets (FAQ / logs / data / operational knowledge) are transferred to other initiatives
+- "Scale-down" is a third operational state distinct from continuation and stop; do not let it be ambiguous when all three are presented together
+
+` : ''}【Review Condition Template】
+- Even when a decision cannot be made this time, re-judgment conditions must always include:
+  1. What must be in place for re-judgment (observable conditions, deadline-bound confirmation items)
+  2. When to re-judge (specific deadline or milestone)
+  3. Who triggers re-judgment (if information-gathering and decision-making parties differ, specify both)
+- Do not end with abstract phrases like "when conditions improve" or "if additional information becomes available"
+- Express as deadline-bound, Yes/No observable conditions where possible${!isUnsetCondition(frontContext.mandatoryConditions.owner) ? `
+- Since owner (${frontContext.mandatoryConditions.owner}) is confirmed, in principle set ${frontContext.mandatoryConditions.owner} as the re-judgment party
+- If the information-gathering party differs, write "Information gathering: ○○ → Re-judgment: ${frontContext.mandatoryConditions.owner}"` : `
+- When owner is undetermined, include who should trigger re-judgment as a point in the output`}
+
+【Capital Allocation: How to handle capital allocation】${frontContext.effectiveType === 'responsibility_structure' ? `
+- In this case, investment rationality and budget reallocation are not the primary issues; position them as subordinate to the responsibility structure fix${frontContext.mandatoryConditions.budgetSource ? `
+- budgetSource (${frontContext.mandatoryConditions.budgetSource}) may be referenced as background context, but do not overemphasize it in the comparison surface` : ''}
+- When mentioning budget allocation, connect it as "which responsibility structure being in place enables that allocation decision"
+- The frame of "exit cost vs. continuation cost vs. opportunity loss" should be supplementary after responsibility structure issues are organized` : `${!isUnsetCondition(frontContext.mandatoryConditions.budgetSource) ? `
+- budgetSource (${frontContext.mandatoryConditions.budgetSource}) is the budget scope for this case
+- Include the capital allocation perspective: whether to keep this budget in the current initiative or reallocate to other initiatives
+- Organize options along the axis of "exit cost vs. continuation cost vs. opportunity loss"` : `
+- budgetSource is undetermined; where possible, include the capital allocation perspective of "whether to keep budget here or reallocate"`}
+- Handle sunk costs not as emotional "waste" arguments, but in business judgment language:
+  - Whether to include or exclude past investment from the ongoing decision
+  - Whether existing assets (data / infrastructure / knowledge) can be reused
+  - What can and cannot be recovered upon exit`}
+
+【Owner: How to handle the decision-making party】${!isUnsetCondition(frontContext.mandatoryConditions.owner) ? `
+- owner (${frontContext.mandatoryConditions.owner}) is the final decision-making party for this session
+- Where possible, lightly note the scope of responsibility (e.g., "authority over business continuity," "approval of budget execution")
+- Heavy expressions like full P&L accountability are not required` : `
+- When owner is undetermined, include who should hold this decision as a point in the output`}
+
+${frontContext.effectiveType === 'pre_adoption' ? `【Pre-Adoption Output Rules】
+This type handles decisions before or at the pre-full-adoption stage.
+${isPreAdoptionFinal ? 'Primary axis: "adoption decision comparison" — comparing full adoption / limited adoption / deferral / halt in comparable form is the top priority.' : 'Primary axis: not "continue/stop" but fixing the adoption criteria / adoption scope / adoption basis.'}
+
+Primary decision surfaces:
+- Full adoption
+- Limited adoption
+- Defer the decision
+- Halt for now
+${isPreAdoptionFinal ? '' : '- Define adoption decision criteria\n'}
+Output notes:
+- Do not be pulled into the post-adoption "continue / scale-down / stop" framework
+- Even if "some AI use has started" appears in the input, treat it as pre-adoption background context
+- The final comparison surfaces should converge to pre_adoption surfaces (full adoption / limited adoption / deferral / halt${isPreAdoptionFinal ? '' : ' / criteria definition'})
+- Distinguish between "deferral" and "halt":
+  - "Deferral": pushing the decision timing back to gather more information (carry to next session)
+  - "Halt": not adopting this time (not adopting now, even if intent to reconsider exists)
+- For each decision surface, include "what conditions must be in place to adopt this surface" in observable form
+${isPreAdoptionFinal ? '- When approaching from the adoption decision side, place a provisional criterion and compare full adoption / limited adoption / deferral / halt' : '- When defining criteria is the primary goal, make explicit that criteria definition must precede the final adoption decision'}
+
+` : ''}${frontContext.effectiveType === 'continuation' ? `【Continuation Decision Surface: Structuring the decision surface】
+- Primary goal: present continuation / scale-down / stop as three comparable decision surfaces at the same granularity
+- Do not stop at "organized results"; develop each option to an adoptable state
+- Each option must include the following 4 items:
+  1. Adoption condition: ${displayDecisionRule !== 'Undetermined' ? `based on decisionRule (${displayDecisionRule}), ` : ''}write what must be confirmed (by ${frontContext.mandatoryConditions.timeHorizon || 'deadline'}) in Yes/No observable form
+  2. What to keep / what to stop: explicitly state what continues and what stops for each option
+  3. Capital allocation meaning: ${frontContext.mandatoryConditions.budgetSource ? `for budgetSource (${frontContext.mandatoryConditions.budgetSource}), state whether this option means continuation cost / limited maintenance cost / reallocation` : 'state whether continuation cost / limited maintenance cost / reallocation'}
+  4. Primary trade-off: write the gains and losses of adopting this option in contrast
+- "Scale-down" must not be hold / wait-and-see / compromise; make it an independent operational state:
+  - What to stop (full deployment / additional investment / new department expansion, etc.)
+  - What to keep (departments with confirmed effect / existing operations / existing knowledge, etc.)
+  - Whether existing assets (data / knowledge / operational record) transfer to other initiatives
+- For "continuation," do not write "what to keep" as unconditional maintenance of all departments; write as continuation within the range that meets decisionRule
+- Difference between A (continuation) and B (scale-down):
+  - A (continuation): decisionRule adoption conditions met; maintaining the conforming range is valid
+  - B (scale-down): conforming range is limited; stopping range / compressed operation is front-facing
+- Re-judgment conditions must include 4 points: what / when / who gathers information / who re-judges${!isUnsetCondition(frontContext.mandatoryConditions.owner) ? `
+  - Separate information-gathering and re-judgment parties (e.g., Gathering: dept. heads → Re-judgment: ${frontContext.mandatoryConditions.owner})` : ''}
+
+` : ''}${frontContext.effectiveType === 'responsibility_structure' ? `【Responsibility Structure: How to read the responsibility structure】
+- Prioritize "who decides, who can declare stop, who holds operational responsibility" over the selection itself
+- Even if owner is given, do not take it as absolute — observe the main text for better candidates
+- Prioritize extracting and organizing the following 4 points:
+  1. Final decision-making party (final owner): who can decide to continue / stop this initiative
+  2. Stop authority: who has authority to declare "stop" (may differ from final decision-maker)
+  3. Operational owner: who / which department handles day-to-day operations
+  4. Role separation (approval / use / oversight): are these roles separated? If not, is that the core problem?
+- If roles are unseparated/unfixed, treat that as "part of the decision unit to be fixed this time"
+- Investment rationality / budget / ROI may be background context; bring the responsibility structure to the front
+- When presenting continue / scale-down / stop, connect them to the responsibility structure:
+  - "Which responsibility structure (owner fixed / roles separated) allows continuation"
+  - "Which unfixed responsibility causes reversion to limited operation (scale-down)"
+  - "Which responsibility deficiency, if unresolved, leads to temporary stop"
+
+【Operational Owner】
+- Treat operational owner as part of the decision unit to fix, on par with final owner / stop authority
+- Specify to department or role level where possible
+- If unfixed, prioritize exposing "operational owner undetermined" as an unresolved point
+- In re-judgment conditions, include completion of operational owner nomination as an explicit trigger
+
+【Responsibility Unresolved / Review】
+- Do not treat unresolved points as general information deficiencies; expose unfixed roles themselves
+- Priority unresolved point candidates to observe:
+  1. Whether final owner is truly confirmed (cross-check against main text, do not accept frontContext at face value)
+  2. Whether stop authority is explicitly stated (same as or different from final decision-maker?)
+  3. Whether operational owner is explicitly stated (to department/role level)
+  4. Whether approval / use / oversight role separation is explicit (if not, treat absence as unresolved)
+- Even if unresolvedPoints is empty, output any of the above as unresolved if unfixed
+- Re-judgment conditions must center on "which responsibility role is unfixed, what is needed to fix it":
+  - Which role is unfixed (stop authority / operational owner / role separation)
+  - What agreement / nomination / rule-setting completion enables re-judgment
+  - By when (specific deadline or milestone)
+  - Who leads the fixing and who makes the final re-judgment
+
+` : ''}`
+    : '';
+
+  const premisesLines = mc
+    ? [
+        !isUnsetCondition(mc.owner) ? `- Final decision-maker: ${mc.owner} (final decision-making party for this session)` : '',
+        !isUnsetCondition(mc.timeHorizon) ? `- Decision deadline: ${mc.timeHorizon} (treat as a decision deadline, not reference information)` : '',
+        !isUnsetCondition(mc.budgetSource) ? `- Budget / investment scope: ${mc.budgetSource} (treat as a constraint for allocation decisions)` : '',
+      ].filter(Boolean)
+    : [];
+
+  const decisionPremisesBlock = premisesLines.length > 0
+    ? `【Decision Premises】\n${premisesLines.join('\n')}\n\n`
+    : '';
+
+  return `Please compress the following input into a decision-ready object.
+
+${frontContextBlock}${frontGuidanceBlock}${decisionPremisesBlock}【Section 1: Decision Overview】
+- Stalled situation: ${q1}
+- Desired outcome: ${isPreAdoptionFinal ? 'Compare and judge adoption options (full adoption / limited adoption / deferral / halt)' : q2}
+- Number of issues: ${issueCount}${hasDependencies ? ' (issues are interdependent)' : ''}
+
+【Section 2: Decision Unit Elements】
+
+■ Problems (phenomena already occurring)
+${problemsText}
+
+■ Tasks (decision items for this round)
+${tasksText}
+
+■ Decision conditions
+- Final decision-maker: ${displayOwner}
+- Decision deadline: ${displayTimeHorizon}
+- Decision criteria: ${displayDecisionRule}
+
+【Section 3: Decision Compression Request】
+
+【Undetermined points】
+${unresolvedText}
+${frontContext?.effectiveType === 'responsibility_structure' ? `
+【Responsibility Structure Checklist (unfixed elements not in raw payload)】
+The following are responsibility structure items to observe from the main text.
+Even if unresolvedPoints is empty, treat these as part of the decision unit to fix if unfixed:
+- Stop authority: who can declare "stop"
+- Operational owner: which department/role handles operations
+- Role separation status (approval / use / oversight): whether these roles are separated
+` : ''}
+【Structured decision condition data (raw)】
+\`\`\`json
+${JSON.stringify(rawPayload, null, 2)}
+\`\`\`
+
+【Questions】
+- What is the decision unit to be locked from this input?
+- What issues should not be decided this time?
+- What is the minimum set of decision axes to compare?
+- What are the trade-offs of each option?
+- Even with undetermined points remaining, how far can a decision be made at this point?
+
+【Request】
+Compress according to the following conditions:
+- Fix only the unit that should be decided this time
+- Do not fill undetermined points with inference; make them explicit as undetermined (refer to null in structured data)
+- Generate comparable decision surfaces, not generic advice
+- Attach to each option: "the conditions that, if confirmed, lead to adopting this option" (observable judgment conditions)
+- Make trade-offs explicit (including exit cost vs. continuation cost vs. opportunity loss)
+- Separate what is not being decided this time
+- If a decision cannot be made this time, always include: "what must be in place for re-judgment" and "when / who triggers re-judgment"
+- Handle sunk costs not as emotional "waste" but as: "whether to include in the ongoing decision or separate" and "whether existing assets can be reused"${frontContext?.effectiveType !== 'pre_adoption' ? `
+- When presenting continuation / scale-down / stop together, "scale-down" must not be hold or wait-and-see; write as an independent operational state with what to stop and what to keep explicitly stated
+- Write continuation and stop each with observable adoption conditions ("if X is confirmed → continuation" / "if X cannot be confirmed → stop")` : ''}
+- Re-judgment conditions must always include 3 points: "what must be in place / when / who"
+
+Output format:
+Please output in Markdown format with the following 3 blocks:
+
+1. Locked decision unit
+2. Decision Surface
+3. Re-judgment conditions
+
+Do not output in JSON format or code block format.`;
 }

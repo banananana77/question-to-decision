@@ -27,6 +27,8 @@ export function buildDCPromptParams(params: {
   additionalAnswers: AdditionalAnswers;
   hasDependencies: boolean;
   promptMode?: 'intermediate' | 'final';
+  locale?: string;
+  selectedQ2Id?: string;
 }): DCPromptParams {
   const {
     selectedType,
@@ -40,6 +42,8 @@ export function buildDCPromptParams(params: {
     additionalAnswers,
     hasDependencies,
     promptMode,
+    locale,
+    selectedQ2Id,
   } = params;
 
   return {
@@ -56,5 +60,7 @@ export function buildDCPromptParams(params: {
       mandatoryConditions,
     }),
     promptMode,
+    locale,
+    selectedQ2Id,
   };
 }
