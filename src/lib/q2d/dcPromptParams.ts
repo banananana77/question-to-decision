@@ -2,6 +2,7 @@ import type { Layer3Output, ExtractedConditions, AdditionalQuestionsNeeded, Addi
 import type { ReclassificationResult } from '@/lib/q2d/reclassification';
 import type { InvestmentTypeId } from '@/lib/q2d/effectiveType';
 import type { DCPromptParams } from '@/lib/q2d/dc-prompt';
+import type { SupportedLocale } from '@/types/q2d';
 import { buildFrontContext } from '@/lib/q2d/frontContext';
 
 type MandatoryConditionsInput = {
@@ -27,7 +28,7 @@ export function buildDCPromptParams(params: {
   additionalAnswers: AdditionalAnswers;
   hasDependencies: boolean;
   promptMode?: 'intermediate' | 'final';
-  locale?: string;
+  locale?: SupportedLocale;
   selectedQ2Id?: string;
 }): DCPromptParams {
   const {

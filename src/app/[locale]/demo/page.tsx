@@ -10,6 +10,7 @@ import { MandatoryConditionsForm, type MandatoryConditions } from '@/components/
 import { resolveTypeQuestions } from '@/lib/q2d/typeSpecificQuestions';
 import type { ReclassificationResult } from '@/lib/q2d/reclassification';
 
+import type { SupportedLocale } from '@/types/q2d';
 import type {
   Q2Option,
   Q2DPipelineResult,
@@ -59,7 +60,7 @@ const INITIAL_STATE: DemoState = {
 
 export default function DemoPage() {
   const t = useTranslations('q2d');
-  const locale = useLocale();
+  const locale = useLocale() as SupportedLocale;
 
   const FIXED_Q2_OPTIONS: Q2Option[] = [
     { id: 'opt_1', text: t('q2Option_opt1') },

@@ -4,11 +4,12 @@ import { convertProblemTask, extractNotAskableReasons } from '@/lib/q2d/layer3-p
 import { logger, safeErrorMeta } from '@/lib/logging/logger';
 import { DEMO_LIMITS } from '@/config/limits';
 import type { Q2DResult, Layer2Output } from '@/schemas/output.schema';
+import type { SupportedLocale } from '@/types/q2d';
 
 /**
  * Q2Dパイプライン実行（Layer 1〜3統合）
  */
-export async function runQ2DPipeline(inputText: string, locale?: string): Promise<Q2DResult> {
+export async function runQ2DPipeline(inputText: string, locale?: SupportedLocale): Promise<Q2DResult> {
   try {
     logger.info('Q2D Pipeline: Starting', {
       inputLength: inputText.length,

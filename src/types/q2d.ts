@@ -1,3 +1,6 @@
+// Supported UI locales — extend here if new locales are added
+export type SupportedLocale = 'ja' | 'en';
+
 // Layer1〜3の出力型定義
 
 export type EvidenceStatus = 'explicit' | 'strong_implication' | 'inference';

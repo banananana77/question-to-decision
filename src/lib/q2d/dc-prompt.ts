@@ -4,6 +4,7 @@ import type {
   AdditionalQuestionsNeeded,
   ExtractedConditions,
 } from '@/schemas/output.schema';
+import type { SupportedLocale } from '@/types/q2d';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -48,7 +49,7 @@ export interface DCPromptParams {
   hasDependencies: boolean;
   frontContext?: FrontContext;
   promptMode?: 'intermediate' | 'final';
-  locale?: string;
+  locale?: SupportedLocale;
   selectedQ2Id?: string;
 }
 

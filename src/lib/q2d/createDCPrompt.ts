@@ -1,6 +1,7 @@
 import type { Layer3Output, ExtractedConditions, AdditionalQuestionsNeeded, AdditionalAnswers } from '@/schemas/output.schema';
 import type { ReclassificationResult } from '@/lib/q2d/reclassification';
 import type { InvestmentTypeId } from '@/lib/q2d/effectiveType';
+import type { SupportedLocale } from '@/types/q2d';
 import { generateDCPrompt } from '@/lib/q2d/dc-prompt';
 import { buildDCPromptParams } from '@/lib/q2d/dcPromptParams';
 
@@ -27,7 +28,7 @@ export function createDCPrompt(params: {
   additionalAnswers: AdditionalAnswers;
   hasDependencies: boolean;
   promptMode?: 'intermediate' | 'final';
-  locale?: string;
+  locale?: SupportedLocale;
   selectedQ2Id?: string;
 }): string {
   return generateDCPrompt(buildDCPromptParams(params));

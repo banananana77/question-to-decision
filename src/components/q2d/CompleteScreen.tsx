@@ -6,6 +6,7 @@ import type { Q2DPipelineResult, AdditionalAnswers } from '@/schemas/output.sche
 import type { ReclassificationResult } from '@/lib/q2d/reclassification';
 import type { MandatoryConditions } from '@/components/q2d/MandatoryConditionsForm';
 import type { InvestmentTypeId } from '@/lib/q2d/effectiveType';
+import type { SupportedLocale } from '@/types/q2d';
 import { resolveEffectiveType } from '@/lib/q2d/effectiveType';
 import { createDCPrompt } from '@/lib/q2d/createDCPrompt';
 
@@ -48,7 +49,7 @@ export function CompleteScreen({
   });
 
   const t = useTranslations('q2d');
-  const locale = useLocale();
+  const locale = useLocale() as SupportedLocale;
   const tl = (ja: string, en: string) => locale === 'en' ? en : ja;
   const [dcLoading, setDcLoading] = useState(false);
 

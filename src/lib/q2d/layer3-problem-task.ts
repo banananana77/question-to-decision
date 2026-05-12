@@ -3,7 +3,7 @@ import { createLayer3Prompt, createLayer3PromptEn, createNotAskablePrompt } from
 import { parseLayer3Output, parseNotAskableOutput } from '@/lib/llm/parser';
 import { logger, safeErrorMeta } from '@/lib/logging/logger';
 import type { Layer2Output, Layer3Output, ExtractedConditions } from '@/schemas/output.schema';
-import type { NotAskableReason } from '@/types/q2d';
+import type { NotAskableReason, SupportedLocale } from '@/types/q2d';
 
 export interface NotAskableResult {
   reasons: NotAskableReason[];
@@ -13,7 +13,7 @@ export interface NotAskableResult {
 /**
  * Layer 3: 問題/課題切り分け
  */
-export async function convertProblemTask(layer2Result: Layer2Output, locale?: string): Promise<Layer3Output> {
+export async function convertProblemTask(layer2Result: Layer2Output, locale?: SupportedLocale): Promise<Layer3Output> {
   try {
     logger.info('Layer3: Starting problem-task conversion');
 

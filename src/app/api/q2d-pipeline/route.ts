@@ -13,7 +13,7 @@ const MAX_BODY_BYTES = 64 * 1024; // 64KB
 const bodySchema = z.object({
   q1: z.string().min(1).max(2000),
   q2: z.string().min(1).max(500),
-  locale: z.string().optional(),
+  locale: z.enum(['ja', 'en']).optional(),
 });
 
 function deriveAdditionalQuestions(
