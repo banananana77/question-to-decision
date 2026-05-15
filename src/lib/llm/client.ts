@@ -33,7 +33,7 @@ export async function callClaude(params: LLMCallParams): Promise<string> {
     });
 
     const response = await client.messages.create({
-      model: 'claude-sonnet-4-5',
+      model: 'claude-sonnet-4-6',
       max_tokens: maxTokens,
       temperature,
       messages: [
