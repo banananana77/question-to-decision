@@ -5,7 +5,7 @@
     "problem1": "Not a diagnostic. Not a summary. A structure that moves you to the next decision.",
     "problem2": "",
     "ctaButton": "Enter your challenge",
-    "limitation": "2 requests per day | Up to 3 issues analyzed"
+    "limitation": "10 requests per day | Up to 3 issues analyzed"
   },
   "demo": {
     "title": "Question-to-Decision Demo",
@@ -17,7 +17,7 @@
     "submitting": "Diagnosing...",
     "processing": "Processing...",
     "processingMessage": "AI is analyzing the issues (may take 1-2 minutes)",
-    "remaining": "{count} remaining / 2 (24h)",
+    "remaining": "{count} remaining / 10 (24h)",
     "issuesDetected": "Detected Issues ({count})",
     "notAskableTitle": "Why this can't be asked yet",
     "notAskableContact": "For more detailed diagnosis, please contact us.",

@@ -1,7 +1,7 @@
 // DEMO版の制限値
 export const DEMO_LIMITS = {
   MAX_REQUESTS_PER_DAY: parseInt(
-    process.env.DEMO_MAX_REQUESTS_PER_DAY || '2',
+    process.env.DEMO_MAX_REQUESTS_PER_DAY || '10',
     10
   ),
   MAX_INPUT_LENGTH: 2000, // 文字数
