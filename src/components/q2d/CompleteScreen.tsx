@@ -1184,6 +1184,21 @@ export function CompleteScreen({
             </section>
           )}
 
+          {/* 比較すべき判断軸（roi_interpretation のみ） */}
+          {effectiveType === 'roi_interpretation' && (
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                {tl('比較すべき判断軸', 'Axes for comparison')}
+              </h3>
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm text-gray-700">
+                {tl(
+                  '期待ROI・業務効率化・継続コスト・一時停止時の機会損失を比較します。',
+                  'Compare expected ROI, operational efficiency gains, continuation cost, and opportunity cost of pausing.',
+                )}
+              </div>
+            </section>
+          )}
+
           {/* 次に確認すべき情報 */}
           {selectedType && (
             <section className="space-y-2">

@@ -122,7 +122,7 @@
     "decisionUnit_pre_adoption": "今回決めるのは、このAI投資を始めるか、どこまで・どの範囲で進めるかです。",
     "decisionUnit_other": "今回決めるのは、このAI投資で今止まっている判断を何として扱うかです。",
     "outOfScope_continuation": "今回は、AI投資の詳細な実行計画までは決めません。",
-    "outOfScope_roi_interpretation": "今回は、個別施策の最適化までは決めません。",
+    "outOfScope_roi_interpretation": "今回は、個別部署ごとのAI施策最適化や、具体的な実行改善策までは決めません。",
     "outOfScope_responsibility_structure": "今回は、AIツール自体の全面置換・詳細な機能改善・予算詳細配分の確定までは決めません。",
     "outOfScope_expansion": "今回は、拡大・追加投資の詳細な実行計画や予算設計までは決めません。",
     "outOfScope_pre_adoption": "今回は、導入後の詳細な運用設計や成果指標の設計までは決めません。",
