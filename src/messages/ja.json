@@ -5,7 +5,7 @@
     "problem1": "診断でも要約でもなく、次の判断に進むための構造化。",
     "problem2": "",
     "ctaButton": "課題を入力する",
-    "limitation": "1日10回まで利用可能 | 最大3論点まで分析"
+    "limitation": "1日3回まで | 最大3論点まで分析"
   },
   "demo": {
     "title": "Question-to-Decision 体験版",
@@ -17,7 +17,7 @@
     "submitting": "診断中...",
     "processing": "診断中...",
     "processingMessage": "AI が論点を分析しています（1〜2分かかる場合があります）",
-    "remaining": "残り {count} 回 / 10回（24時間）",
+    "remaining": "残り {count} 回 / 3回（24時間）",
     "issuesDetected": "検出された論点（{count}件）",
     "notAskableTitle": "このままでは問えない理由",
     "notAskableContact": "より詳しい診断が必要な場合は、お問い合わせください。",
@@ -26,7 +26,7 @@
   },
   "blocked": {
     "title": "アクセスがブロックされました",
-    "rateLimitMessage": "1日の利用上限に達しました。24時間後に再度お試しください。",
+    "rateLimitMessage": "本日の利用上限に達しました。明日以降に再度お試しください。",
     "botDetectedMessage": "不正なアクセスが検出されました。",
     "unknownMessage": "アクセスがブロックされました。",
     "backButton": "トップページへ戻る",
@@ -34,7 +34,7 @@
   },
   "errors": {
     "emptyInput": "入力テキストを入力してください",
-    "rateLimitExceeded": "1日の利用上限に達しました。24時間後に再度お試しください。",
+    "rateLimitExceeded": "本日の利用上限に達しました。明日以降に再度お試しください。",
     "inputError": "入力内容に問題があります",
     "serverError": "診断に失敗しました。しばらくしてから再度お試しください。",
     "networkError": "通信エラーが発生しました",
@@ -185,7 +185,9 @@
     "dcErrorTitle": "次の処理で問題が発生しました",
     "dcErrorMessage": "判断の構造整理は完了しています。「再試行する」でもう一度お試しください。",
     "errorAnalysis": "分析に失敗しました。もう一度お試しください。",
-    "errorPipeline": "診断に失敗しました。もう一度お試しください。"
+    "errorPipeline": "診断に失敗しました。もう一度お試しください。",
+    "rateLimitTitle": "本日の利用上限に達しました",
+    "rateLimitNotice": "明日以降に再度お試しください。"
   },
   "categories": {
     "owner_unclear": "誰が決めるのか不明確",

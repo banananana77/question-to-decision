@@ -41,6 +41,7 @@ interface DemoState {
   additionalAnswers: AdditionalAnswers;
   reclassificationResult: ReclassificationResult | null;
   error: string;
+  rateLimitError: boolean;
 }
 
 const INITIAL_STATE: DemoState = {
@@ -56,6 +57,7 @@ const INITIAL_STATE: DemoState = {
   additionalAnswers: {},
   reclassificationResult: null,
   error: '',
+  rateLimitError: false,
 };
 
 export default function DemoPage() {
@@ -85,24 +87,24 @@ export default function DemoPage() {
 
   // ── Layer 0: 型選択 ───────────────────────────────────────────────────────
   const handleTypeSelect = (typeId: InvestmentTypeId) => {
-    updateState({ selectedType: typeId, step: 'mandatory_conditions', error: '' });
+    updateState({ selectedType: typeId, step: 'mandatory_conditions', error: '', rateLimitError: false });
   };
 
   // ── Layer 1: 必須3変数取得 ────────────────────────────────────────────────
   const handleMandatoryConditionsSubmit = (conditions: MandatoryConditions) => {
-    updateState({ mandatoryConditions: conditions, step: 'q1', error: '' });
+    updateState({ mandatoryConditions: conditions, step: 'q1', error: '', rateLimitError: false });
   };
 
   // ── Step 1: Q1 送信 → Q2 固定選択肢表示 ────────────────────────────────
   const handleQ1Submit = (q1: string) => {
     const q2Options =
       state.selectedType === 'pre_adoption' ? PRE_ADOPTION_Q2_OPTIONS : FIXED_Q2_OPTIONS;
-    updateState({ step: 'q2', q1, q2Options, error: '' });
+    updateState({ step: 'q2', q1, q2Options, error: '', rateLimitError: false });
   };
 
   // ── Step 2: Q2 送信 → Layer 1-3 パイプライン実行 ───────────────────────
   const handleQ2Submit = async (q2: string, q2Id: string) => {
-    updateState({ step: 'processing', q2, selectedQ2Id: q2Id, error: '' });
+    updateState({ step: 'processing', q2, selectedQ2Id: q2Id, error: '', rateLimitError: false });
 
     try {
       const res = await fetch('/api/q2d-pipeline', {
@@ -110,6 +112,11 @@ export default function DemoPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ q1: state.q1, q2, locale }),
       });
+
+      if (res.status === 429) {
+        updateState({ step: 'q2', rateLimitError: true });
+        return;
+      }
 
       if (!res.ok) throw new Error('Pipeline failed');
       const data: Q2DPipelineResult = await res.json();
@@ -192,7 +199,15 @@ export default function DemoPage() {
 
         {/* カード */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-          {/* エラー表示 */}
+          {/* レート制限通知（amber） */}
+          {state.rateLimitError && (
+            <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
+              <p className="font-medium">{t('rateLimitTitle')}</p>
+              <p className="mt-1">{t('rateLimitNotice')}</p>
+            </div>
+          )}
+
+          {/* サーバーエラー表示（red） */}
           {state.error && (
             <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">
               {state.error}

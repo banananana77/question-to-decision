@@ -5,7 +5,7 @@
     "problem1": "Not a diagnostic. Not a summary.\nA structure that moves you to the next decision.",
     "problem2": "",
     "ctaButton": "Enter your challenge",
-    "limitation": "10 requests per day | Up to 3 issues analyzed"
+    "limitation": "3 requests per day | Up to 3 issues analyzed"
   },
   "demo": {
     "title": "Question-to-Decision Demo",
@@ -17,7 +17,7 @@
     "submitting": "Diagnosing...",
     "processing": "Processing...",
     "processingMessage": "AI is analyzing the issues (may take 1-2 minutes)",
-    "remaining": "{count} remaining / 10 (24h)",
+    "remaining": "{count} remaining / 3 (24h)",
     "issuesDetected": "Detected Issues ({count})",
     "notAskableTitle": "Why this can't be asked yet",
     "notAskableContact": "For more detailed diagnosis, please contact us.",
@@ -26,7 +26,7 @@
   },
   "blocked": {
     "title": "Access Blocked",
-    "rateLimitMessage": "Daily usage limit reached. Please try again in 24 hours.",
+    "rateLimitMessage": "You've reached today's demo limit. Please try again tomorrow.",
     "botDetectedMessage": "Suspicious activity detected.",
     "unknownMessage": "Access has been blocked.",
     "backButton": "Back to Home",
@@ -34,7 +34,7 @@
   },
   "errors": {
     "emptyInput": "Please enter your question",
-    "rateLimitExceeded": "Daily usage limit reached. Please try again in 24 hours.",
+    "rateLimitExceeded": "You've reached today's demo limit. Please try again tomorrow.",
     "inputError": "There is an issue with your input",
     "serverError": "Diagnosis failed. Please try again later.",
     "networkError": "Network error occurred",
@@ -185,7 +185,9 @@
     "dcErrorTitle": "An error occurred in the next step",
     "dcErrorMessage": "The decision structure has been organized. Please try again with the retry button.",
     "errorAnalysis": "Analysis failed. Please try again.",
-    "errorPipeline": "Diagnosis failed. Please try again."
+    "errorPipeline": "Diagnosis failed. Please try again.",
+    "rateLimitTitle": "Daily limit reached",
+    "rateLimitNotice": "You've reached today's demo limit. Please try again tomorrow."
   },
   "categories": {
     "owner_unclear": "Decision-maker unclear",
