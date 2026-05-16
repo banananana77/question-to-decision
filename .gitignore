@@ -12,3 +12,4 @@ coverage
 *.log
 test-results/
 tsconfig.tsbuildinfo
+src/lib/q2d/Untitled-*.txt
