@@ -11,10 +11,10 @@ export default function LandingPage() {
       <div className="max-w-2xl text-center space-y-8">
         <h1 className="text-4xl font-bold text-gray-900 whitespace-pre-line">{t('title')}</h1>
 
-        <p className="text-xl text-gray-600">{t('subtitle')}</p>
+        <p className="text-xl text-gray-600 whitespace-pre-line">{t('subtitle')}</p>
 
         <div className="space-y-4">
-          <p className="text-gray-700">{t('problem1')}</p>
+          <p className="text-gray-700 whitespace-pre-line">{t('problem1')}</p>
           {t('problem2') && (
             <p className="text-gray-500 text-sm">{t('problem2')}</p>
           )}

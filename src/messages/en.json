@@ -1,8 +1,8 @@
 {
   "landing": {
-    "title": "Structure your AI investment decisions —\ncontinue, revise, or scale — into what to decide next.",
-    "subtitle": "We turn your ambiguous situation into a structured prompt — with owner, deadline, and priority criteria visible.",
-    "problem1": "Not a diagnostic. Not a summary. A structure that moves you to the next decision.",
+    "title": "Structure your AI investment decisions —\ncontinue, revise, or scale —\ninto what to decide next.",
+    "subtitle": "We turn your ambiguous situation into a structured prompt —\nwith owner, deadline, and priority criteria visible.",
+    "problem1": "Not a diagnostic. Not a summary.\nA structure that moves you to the next decision.",
     "problem2": "",
     "ctaButton": "Enter your challenge",
     "limitation": "10 requests per day | Up to 3 issues analyzed"
